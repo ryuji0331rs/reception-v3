@@ -345,14 +345,40 @@ document.addEventListener("click", function(e){
 });
 
 /* アイドル画面タップ（data-actionなし領域もカバー） */
-document.getElementById("s-idle").addEventListener("click", function(e){
-  if(e.target.closest("[data-lang]")) return;
-  aTaps++;
-  clearTimeout(aTapTimer);
-  aTapTimer=setTimeout(function(){ aTaps=0; },2000);
-  if(aTaps>=5){ aTaps=0; openAdmin(); return; }
-  go("company");
-});
+/* ── アイドル画面：タップ→会社選択 / 長押し3秒→管理画面 ── */
+(function(){
+  var idleEl = document.getElementById("s-idle");
+  var pressTimer = null;
+  var pressing = false;
+
+  function startPress(e){
+    if(e.target.closest("[data-lang]")) return;
+    pressing = true;
+    pressTimer = setTimeout(function(){
+      if(pressing){ pressing=false; openAdmin(); }
+    }, 3000);
+  }
+  function endPress(e){
+    if(!pressing) return;
+    clearTimeout(pressTimer);
+    if(pressing){
+      pressing = false;
+      if(e.target.closest("[data-lang]")) return;
+      go("company");
+    }
+  }
+  function cancelPress(){
+    pressing = false;
+    clearTimeout(pressTimer);
+  }
+
+  idleEl.addEventListener("mousedown", startPress);
+  idleEl.addEventListener("touchstart", startPress, {passive:true});
+  idleEl.addEventListener("mouseup", endPress);
+  idleEl.addEventListener("touchend", endPress);
+  idleEl.addEventListener("mouseleave", cancelPress);
+  idleEl.addEventListener("touchcancel", cancelPress);
+})();
 
 /* ── ADMIN ── */
 function openAdmin(){
