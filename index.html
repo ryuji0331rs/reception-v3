@@ -109,6 +109,23 @@ html,body { width:100%; height:100%; background:var(--bg); color:var(--text); fo
 .asave { flex:1; background:var(--gold); border:none; border-radius:8px; color:#fff; font-family:var(--f-body); font-size:13px; font-weight:500; padding:11px; cursor:pointer; }
 .acancel { flex:1; background:none; border:1px solid #2d5040; border-radius:8px; color:#7a9e8a; font-family:var(--f-body); font-size:13px; padding:11px; cursor:pointer; }
 .alog { background:#152b20; border-radius:8px; padding:12px; max-height:130px; overflow-y:auto; font-family:var(--f-body); font-size:11px; color:#7a9e8a; line-height:1.7; }
+
+/* 焼き付き防止：時計ラッパー */
+#clock-wrap {
+  position: relative;
+  transition: transform 8s ease-in-out;
+  display: flex; flex-direction: column; align-items: center;
+}
+/* 輝度ダウン */
+#s-idle.dimmed { filter: brightness(0.25); transition: filter 2s ease; }
+#s-idle { transition: filter 2s ease; }
+/* 背景アニメーション */
+@keyframes bgShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 </style>
 </head>
 <body>
@@ -283,6 +300,7 @@ function showWait(){
   if(lbl){ badge.textContent=lbl; badge.style.display="block"; }
   else { badge.style.display="none"; }
   go("wait");
+  playBell();
   sendWebhook();
   var bar=document.getElementById("w-bar");
   bar.style.transition="none"; bar.style.width="0%";
@@ -389,6 +407,91 @@ function openAdmin(){
 function closeAdmin(){ document.getElementById("admin-modal").classList.remove("open"); }
 function log(m){ var l=document.getElementById("alog"); l.innerHTML+=m+"<br>"; l.scrollTop=l.scrollHeight; }
 function showToast(){ var el=document.getElementById("toast"); el.textContent=tr("net_err"); el.classList.add("show"); setTimeout(function(){ el.classList.remove("show"); },4000); }
+
+
+/* ── ベル音（Web Audio API）── */
+function playBell(){
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    /* 倍音を重ねて上品なベル音を生成 */
+    var freqs = [523.25, 1046.5, 1568, 2093]; /* C5, C6, G6, C7 */
+    var gains = [0.5, 0.3, 0.15, 0.08];
+    freqs.forEach(function(freq, i){
+      var osc  = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(gains[i], ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 2.5);
+    });
+  } catch(e){ console.log('Bell error:', e); }
+}
+
+/* ── 焼き付き防止 ── */
+(function(){
+  var DIM_MS    = 5 * 60 * 1000; /* 5分で暗く */
+  var MOVE_MS   = 3 * 60 * 1000; /* 3分ごとに時計移動 */
+  var dimTimer  = null;
+  var moveTimer = null;
+
+  /* 時計ラッパーをclockとdateの親に */
+  var clockEl = document.getElementById('clock');
+  var dateEl  = document.getElementById('date');
+  var wrap    = document.createElement('div');
+  wrap.id = 'clock-wrap';
+  clockEl.parentNode.insertBefore(wrap, clockEl);
+  wrap.appendChild(clockEl);
+  wrap.appendChild(dateEl);
+
+  /* 時計位置をランダムに移動 */
+  function moveClockRandom(){
+    var x = (Math.random() - 0.5) * 80; /* ±40px */
+    var y = (Math.random() - 0.5) * 60; /* ±30px */
+    wrap.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+  }
+
+  /* 画面を暗くする */
+  function dimScreen(){
+    var idle = document.getElementById('s-idle');
+    if(idle.classList.contains('active')){
+      idle.classList.add('dimmed');
+    }
+  }
+  function undimScreen(){
+    document.getElementById('s-idle').classList.remove('dimmed');
+    resetBurninTimers();
+  }
+
+  function resetBurninTimers(){
+    clearTimeout(dimTimer);
+    clearTimeout(moveTimer);
+    if(document.getElementById('s-idle').classList.contains('active')){
+      dimTimer  = setTimeout(dimScreen, DIM_MS);
+      moveTimer = setInterval(moveClockRandom, MOVE_MS);
+    }
+  }
+
+  /* アイドル画面に戻った時にタイマー開始 */
+  var origHome = home;
+  home = function(){
+    origHome();
+    setTimeout(function(){
+      clearInterval(moveTimer);
+      resetBurninTimers();
+    }, 100);
+  };
+
+  /* タップで明るさ復帰 */
+  document.getElementById('s-idle').addEventListener('touchstart', undimScreen, {passive:true});
+  document.getElementById('s-idle').addEventListener('mousedown', undimScreen);
+
+  /* 初期化 */
+  resetBurninTimers();
+})();
 
 /* ── INIT ── */
 applyLang();
