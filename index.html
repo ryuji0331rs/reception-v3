@@ -402,7 +402,6 @@ function showWait(){
   else { badge.style.display="none"; }
   go("wait");
   playBell();
-  speakWaitMessage();
   sendWebhook();
   var bar=document.getElementById("w-bar");
   bar.style.transition="none"; bar.style.width="0%";
@@ -535,53 +534,6 @@ function playBell(){
 
 
 /* ── 音声読み上げ（Web Speech API）── */
-var SPEECH_TEXTS = {
-  ja: '只今、係りの者が参りますので、少々お待ちください。',
-  en: 'A staff member will be with you shortly. Please wait.',
-  zh: '工作人员即将前来接待，请稍候。'
-};
-var SPEECH_LANGS = {
-  ja: 'ja-JP',
-  en: 'en-US',
-  zh: 'zh-CN'
-};
-
-/* 音声リストを事前ロード */
-var cachedVoices = [];
-function loadVoices() {
-  if (!window.speechSynthesis) return;
-  cachedVoices = window.speechSynthesis.getVoices();
-}
-if (window.speechSynthesis) {
-  loadVoices();
-  window.speechSynthesis.onvoiceschanged = loadVoices;
-}
-
-function speakWaitMessage() {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  var text = SPEECH_TEXTS[currentLang] || SPEECH_TEXTS.ja;
-  var lang = SPEECH_LANGS[currentLang] || 'ja-JP';
-
-  /* 少し遅延してから発話（ベル音との競合を避ける） */
-  setTimeout(function() {
-    var utter = new SpeechSynthesisUtterance(text);
-    utter.lang = lang;
-    utter.rate = 0.88;
-    utter.pitch = 1.0;
-    utter.volume = 1.0;
-
-    /* キャッシュ済み音声から選択 */
-    var voices = cachedVoices.length ? cachedVoices : window.speechSynthesis.getVoices();
-    var matched = voices.find(function(v){ return v.lang === lang; })
-               || voices.find(function(v){ return v.lang.startsWith(lang.split('-')[0]); });
-    if (matched) utter.voice = matched;
-
-    /* iOS Safari対策：utteranceを変数に保持 */
-    window._currentUtter = utter;
-    window.speechSynthesis.speak(utter);
-  }, 800); /* ベル音(2.5秒)の後、少し間をあけて発話 */
-}
 
 /* ── 焼き付き防止 ── */
 (function(){
