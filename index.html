@@ -129,12 +129,7 @@ html,body { width:100%; height:100%; background:var(--bg); color:var(--text); fo
 .acancel { flex:1; background:none; border:1px solid #2d5040; border-radius:8px; color:#7a9e8a; font-family:var(--f-body); font-size:13px; padding:11px; cursor:pointer; }
 .alog { background:#152b20; border-radius:8px; padding:12px; max-height:130px; overflow-y:auto; font-family:var(--f-body); font-size:11px; color:#7a9e8a; line-height:1.7; }
 
-/* 焼き付き防止：時計ラッパー */
-#clock-wrap {
-  position: relative;
-  transition: transform 8s ease-in-out;
-  display: flex; flex-direction: column; align-items: center;
-}
+/* 焼き付き防止：時計色アニメのみ */
 /* 輝度ダウン */
 #s-idle.dimmed { filter: brightness(0.25); transition: filter 2s ease; }
 #s-idle { transition: filter 2s ease; }
@@ -215,6 +210,18 @@ html,body { width:100%; height:100%; background:var(--bg); color:var(--text); fo
   content: 'ⓘ';
   color: rgba(201,168,76,0.5);
   font-size: 1.1em;
+}
+
+
+/* 時計の色がゆっくり変化（焼き付き防止） */
+@keyframes clockColorShift {
+  0%   { color: rgba(245,240,232,0.82); text-shadow: 0 0 40px rgba(201,168,76,0.0); }
+  30%  { color: rgba(201,168,76,0.90);  text-shadow: 0 0 60px rgba(201,168,76,0.3); }
+  60%  { color: rgba(245,240,232,0.60); text-shadow: 0 0 20px rgba(201,168,76,0.0); }
+  100% { color: rgba(245,240,232,0.82); text-shadow: 0 0 40px rgba(201,168,76,0.0); }
+}
+#clock {
+  animation: clockColorShift 12s ease-in-out infinite;
 }
 
 </style>
@@ -538,25 +545,13 @@ function playBell(){
 /* ── 焼き付き防止 ── */
 (function(){
   var DIM_MS    = 99 * 60 * 1000; /* 輝度ダウン無効 */
-  var MOVE_MS   = 3 * 60 * 1000; /* 3分ごとに時計移動 */
+  var MOVE_MS   = 99 * 60 * 1000; /* 時計移動無効 */
   var dimTimer  = null;
   var moveTimer = null;
 
-  /* 時計ラッパーをclockとdateの親に */
-  var clockEl = document.getElementById('clock');
-  var dateEl  = document.getElementById('date');
-  var wrap    = document.createElement('div');
-  wrap.id = 'clock-wrap';
-  clockEl.parentNode.insertBefore(wrap, clockEl);
-  wrap.appendChild(clockEl);
-  wrap.appendChild(dateEl);
+  /* 時計ラッパー：位置移動なし */
 
-  /* 時計位置をランダムに移動 */
-  function moveClockRandom(){
-    var x = (Math.random() - 0.5) * 80; /* ±40px */
-    var y = (Math.random() - 0.5) * 60; /* ±30px */
-    wrap.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
-  }
+  function moveClockRandom(){ /* 無効化 */ }
 
   /* 輝度ダウン無効化 */
   function dimScreen(){ /* disabled */ }
