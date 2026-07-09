@@ -402,6 +402,7 @@ function showWait(){
   else { badge.style.display="none"; }
   go("wait");
   playBell();
+  speakWaitMessage();
   sendWebhook();
   var bar=document.getElementById("w-bar");
   bar.style.transition="none"; bar.style.width="0%";
@@ -532,9 +533,41 @@ function playBell(){
   } catch(e){ console.log('Bell error:', e); }
 }
 
+
+/* ── 音声読み上げ（Web Speech API）── */
+var SPEECH_TEXTS = {
+  ja: '只今、係りの者が参りますので、少々お待ちください。',
+  en: 'A staff member will be with you shortly. Please wait.',
+  zh: '工作人员即将前来接待，请稍候。'
+};
+var SPEECH_LANGS = {
+  ja: 'ja-JP',
+  en: 'en-US',
+  zh: 'zh-CN'
+};
+
+function speakWaitMessage() {
+  if (!window.speechSynthesis) return;
+  /* 既存の読み上げを停止 */
+  window.speechSynthesis.cancel();
+  var text = SPEECH_TEXTS[currentLang] || SPEECH_TEXTS.ja;
+  var lang = SPEECH_LANGS[currentLang] || 'ja-JP';
+  var utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang;
+  utter.rate = 0.88;   /* やや遅め・聞き取りやすく */
+  utter.pitch = 1.0;
+  utter.volume = 1.0;
+  /* 適切な音声を選択 */
+  var voices = window.speechSynthesis.getVoices();
+  var matched = voices.find(function(v){ return v.lang === lang; })
+             || voices.find(function(v){ return v.lang.startsWith(lang.split('-')[0]); });
+  if (matched) utter.voice = matched;
+  window.speechSynthesis.speak(utter);
+}
+
 /* ── 焼き付き防止 ── */
 (function(){
-  var DIM_MS    = 5 * 60 * 1000; /* 5分で暗く */
+  var DIM_MS    = 99 * 60 * 1000; /* 輝度ダウン無効 */
   var MOVE_MS   = 3 * 60 * 1000; /* 3分ごとに時計移動 */
   var dimTimer  = null;
   var moveTimer = null;
@@ -555,17 +588,9 @@ function playBell(){
     wrap.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
   }
 
-  /* 画面を暗くする */
-  function dimScreen(){
-    var idle = document.getElementById('s-idle');
-    if(idle.classList.contains('active')){
-      idle.classList.add('dimmed');
-    }
-  }
-  function undimScreen(){
-    document.getElementById('s-idle').classList.remove('dimmed');
-    resetBurninTimers();
-  }
+  /* 輝度ダウン無効化 */
+  function dimScreen(){ /* disabled */ }
+  function undimScreen(){ resetBurninTimers(); }
 
   function resetBurninTimers(){
     clearTimeout(dimTimer);
