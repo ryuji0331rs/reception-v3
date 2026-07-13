@@ -37,15 +37,67 @@ html,body { width:100%; height:100%; background:var(--bg); color:var(--text); fo
 .screen.active { opacity:1; pointer-events:all; }
 
 /* IDLE */
-#s-idle { background-image: url("assets/bg.jpg"); background-size: cover; background-position: center; cursor: pointer; }
-.idle-lang { position:absolute; bottom:20px; right:32px; display:flex; gap:8px; }
+#s-idle {
+  background: #1a2e20;
+  cursor: default;
+  overflow: hidden;
+}
+/* 背景2分割 */
+#s-idle::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(to right,
+      rgba(10,25,15,0.5) 0%, rgba(10,25,15,0.5) 50%,
+      rgba(5,5,5,0.55) 50%, rgba(5,5,5,0.55) 100%
+    ),
+    url("assets/bg.jpg") center/cover no-repeat;
+  z-index: 0;
+}
+/* 縦ゴールドライン */
+#s-idle::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent 0%, rgba(201,168,76,0.9) 10%, rgba(201,168,76,0.9) 90%, transparent 100%);
+  z-index: 1;
+}
+#s-idle > * { position: relative; z-index: 2; }
+.idle-lang { position:absolute; bottom:20px; right:32px; display:flex; gap:8px; z-index:3; }
 .ilbtn { background:rgba(255,255,255,0.08); border:1px solid rgba(201,168,76,0.35); border-radius:99px; color:rgba(245,240,232,0.6); font-family:var(--f-body); font-size:12px; letter-spacing:0.08em; padding:6px 16px; cursor:pointer; transition:all var(--tr); }
 .ilbtn.active { background:rgba(201,168,76,0.15); border-color:#c9a84c; color:#c9a84c; }
 /* ロゴ：左上・右上固定配置 */
-.logo-2nd { position:absolute; top:24px; left:32px; height:clamp(48px,7vw,88px); object-fit:contain; filter:invert(1); }
-.logo-lux { position:absolute; top:28px; right:32px; height:clamp(26px,3.2vw,44px); object-fit:contain; }
-.idle-sub { font-family:var(--f-body); font-size:clamp(10px,1.1vw,12px); letter-spacing:0.5em; color:rgba(201,168,76,0.45); margin-bottom:48px; text-transform:uppercase; }
-/* タップ案内 → メイン */
+.logo-2nd { position:absolute; top:24px; left:32px; height:clamp(48px,7vw,88px); object-fit:contain; filter:invert(1); z-index:3; }
+.logo-lux { position:absolute; top:28px; right:32px; height:clamp(26px,3.2vw,44px); object-fit:contain; z-index:3; }
+/* RECEPTION ラベル */
+.idle-sub { font-family:var(--f-body); font-size:clamp(10px,1.1vw,12px); letter-spacing:0.5em; color:rgba(201,168,76,0.55); margin-bottom:clamp(16px,2.5vw,32px); text-transform:uppercase; }
+/* タイトル */
+.idle-title { font-family:var(--f-serif); font-size:clamp(15px,2vw,24px); font-weight:400; color:rgba(245,240,232,0.9); letter-spacing:0.12em; text-align:center; margin-bottom:clamp(20px,3vw,40px); }
+/* 会社選択ボタン */
+.idle-cards { display:flex; width:100%; max-width:900px; gap:0; justify-content:center; margin-bottom:clamp(16px,2.5vw,32px); }
+.idle-ccard {
+  flex:1; max-width:380px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:clamp(12px,1.8vw,20px);
+  padding:clamp(20px,3vw,40px) clamp(16px,2.5vw,32px);
+  background: rgba(10,30,20,0.28);
+  border: 1px solid rgba(201,168,76,0.45);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  margin: 0 clamp(12px,2vw,28px);
+  min-height: clamp(160px,22vh,260px);
+}
+.idle-ccard:hover { border-color:#c9a84c; background:rgba(10,30,20,0.45); transform:translateY(-4px); box-shadow:0 8px 32px rgba(201,168,76,0.18); }
+.idle-ccard:active { transform:scale(0.97); opacity:0.85; }
+.idle-ccard img { max-width:clamp(120px,16vw,200px); max-height:clamp(70px,9vw,110px); object-fit:contain; pointer-events:none; filter:brightness(0) invert(1); }
+.idle-ccard-name { font-family:var(--f-serif); font-size:clamp(11px,1.3vw,15px); color:rgba(245,240,232,0.6); letter-spacing:0.15em; text-align:center; }
+/* 時計 → サブ情報 */
+/* タップ案内 → メイン（廃止のため空定義） */
 .tap-hint {
   font-family: var(--f-serif);
   font-size: clamp(22px, 3.2vw, 42px);
@@ -228,7 +280,7 @@ html,body { width:100%; height:100%; background:var(--bg); color:var(--text); fo
 </head>
 <body>
 
-<!-- IDLE -->
+<!-- IDLE（新トップ：背景+時計+会社選択ボタン） -->
 <div id="s-idle" class="screen active">
   <img class="logo-2nd" src="assets/logo_2nd.png" alt="2nd Village">
   <img class="logo-lux" src="assets/logo_lux.png" alt="LUX TOKYO">
@@ -237,13 +289,17 @@ html,body { width:100%; height:100%; background:var(--bg); color:var(--text); fo
     <button class="ilbtn" data-lang="en">EN</button>
     <button class="ilbtn" data-lang="zh">中文</button>
   </div>
-  <img class="logo-2nd" src="assets/logo_2nd.png" alt="2nd Village">
-  <img class="logo-lux" src="assets/logo_lux.png" alt="LUX TOKYO">
   <div class="idle-sub">Reception</div>
-  <div class="tap-card">
-    <img class="touch-icon" src="assets/touch_icon.png" alt="tap">
-    <div class="tap-main" data-i18n="tap">受付を開始する</div>
-    <div class="tap-sub">画面をタップしてください</div>
+  <div class="idle-title" data-i18n="select_dest">受付先をお選びください</div>
+  <div class="idle-cards">
+    <div class="idle-ccard" data-action="sel-2nd">
+      <img src="assets/logo_2nd.png" alt="2nd Village">
+      <div class="idle-ccard-name">株式会社 2nd Village</div>
+    </div>
+    <div class="idle-ccard" data-action="sel-lux">
+      <img src="assets/logo_lux.png" alt="LUX TOKYO" style="filter:none;">
+      <div class="idle-ccard-name">LUX TOKYO</div>
+    </div>
   </div>
   <div class="tap-arrow" style="color:rgba(201,168,76,0.55);margin:4px 0">❯❯</div>
   <div id="clock">--:--</div>
@@ -459,7 +515,7 @@ document.addEventListener("click", function(e){
       s.company="LUX TOKYO"; s.purpose={ja:"",en:"",zh:""}; showWait(); break;
     case "sel-purpose":
       s.purpose={ja:el.dataset.ja, en:el.dataset.en, zh:el.dataset.zh}; showWait(); break;
-    case "go-company": go("company"); break;
+    case "go-company": go("idle"); break;
     case "go-home": clearTimeout(waitTimer); home(); break;
     case "admin-save":
       localStorage.setItem("wh_2nd",document.getElementById("wh-2nd").value.trim());
@@ -469,15 +525,14 @@ document.addEventListener("click", function(e){
   }
 });
 
-/* アイドル画面タップ（data-actionなし領域もカバー） */
-/* ── アイドル画面：タップ→会社選択 / 長押し3秒→管理画面 ── */
+/* ── アイドル画面：長押し3秒→管理画面（ボタン以外の領域） ── */
 (function(){
   var idleEl = document.getElementById("s-idle");
   var pressTimer = null;
   var pressing = false;
 
   function startPress(e){
-    if(e.target.closest("[data-lang]")) return;
+    if(e.target.closest("[data-lang]") || e.target.closest(".idle-ccard")) return;
     pressing = true;
     pressTimer = setTimeout(function(){
       if(pressing){ pressing=false; openAdmin(); }
@@ -486,11 +541,7 @@ document.addEventListener("click", function(e){
   function endPress(e){
     if(!pressing) return;
     clearTimeout(pressTimer);
-    if(pressing){
-      pressing = false;
-      if(e.target.closest("[data-lang]")) return;
-      go("company");
-    }
+    pressing = false;
   }
   function cancelPress(){
     pressing = false;
