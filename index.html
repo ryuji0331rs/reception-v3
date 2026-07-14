@@ -108,6 +108,7 @@ html,body { width:100%; height:100%; background:var(--bg); color:var(--text); fo
 .idle-ccard:hover .idle-ccard-inner { border-color:#c9a84c; background:rgba(10,30,20,0.52); transform:translateY(-4px); box-shadow:0 8px 32px rgba(201,168,76,0.22); }
 .idle-ccard:active .idle-ccard-inner { transform:scale(0.97); }
 .idle-ccard img { max-width:clamp(180px,26vw,320px); max-height:clamp(100px,14vw,180px); object-fit:contain; pointer-events:none; filter:brightness(0) invert(1); }
+.idle-touch-icon { max-width:clamp(28px,3.5vw,48px) !important; max-height:clamp(28px,3.5vw,48px) !important; margin-top:clamp(10px,1.5vw,18px); opacity:0.7; }
 .idle-ccard-name { display:none; }
 /* タップ案内 → メイン（廃止のため空定義） */
 .tap-hint {
@@ -307,11 +308,13 @@ html,body { width:100%; height:100%; background:var(--bg); color:var(--text); fo
     <div class="idle-ccard" data-action="sel-2nd">
       <div class="idle-ccard-inner">
         <img src="assets/logo_2nd.png" alt="2nd Village">
+        <img src="assets/touch_icon.png" alt="tap" class="idle-touch-icon">
       </div>
     </div>
     <div class="idle-ccard" data-action="sel-lux">
       <div class="idle-ccard-inner">
         <img src="assets/logo_lux.png" alt="LUX TOKYO">
+        <img src="assets/touch_icon.png" alt="tap" class="idle-touch-icon">
       </div>
     </div>
   </div>
