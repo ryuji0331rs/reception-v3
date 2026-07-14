@@ -43,30 +43,45 @@ html,body { width:100%; height:100%; background:var(--bg); color:var(--text); fo
   background-position: center;
   cursor: default;
   overflow: hidden;
+  position: relative;
 }
 /* 縦ゴールドライン */
 #s-idle::after {
   content: '';
   position: absolute;
-  top: 0; bottom: 0;
-  left: 50%;
+  top: 0; bottom: 0; left: 50%;
   width: 1px;
   background: linear-gradient(to bottom, transparent 0%, rgba(201,168,76,0.85) 8%, rgba(201,168,76,0.85) 92%, transparent 100%);
   z-index: 1;
   pointer-events: none;
 }
-.idle-lang { position:absolute; bottom:20px; right:32px; display:flex; gap:8px; z-index:3; }
+/* 言語ボタン */
+.idle-lang { position:absolute; bottom:20px; right:32px; display:flex; gap:8px; z-index:5; }
 .ilbtn { background:rgba(255,255,255,0.08); border:1px solid rgba(201,168,76,0.35); border-radius:99px; color:rgba(245,240,232,0.6); font-family:var(--f-body); font-size:12px; letter-spacing:0.08em; padding:6px 16px; cursor:pointer; transition:all var(--tr); }
 .ilbtn.active { background:rgba(201,168,76,0.15); border-color:#c9a84c; color:#c9a84c; }
-/* ロゴ：左上・右上固定配置 */
-.logo-2nd { display:none; }
-.logo-lux { display:none; }
+/* ロゴ非表示 */
+.logo-2nd, .logo-lux { display:none; }
 /* RECEPTION ラベル */
-.idle-sub { font-family:var(--f-body); font-size:clamp(10px,1.1vw,12px); letter-spacing:0.5em; color:rgba(201,168,76,0.65); margin-bottom:clamp(16px,2.5vw,28px); text-transform:uppercase; }
+.idle-sub {
+  position: absolute;
+  top: clamp(18px, 4vh, 52px);
+  left: 50%; transform: translateX(-50%);
+  font-family:var(--f-body); font-size:clamp(10px,1.1vw,12px);
+  letter-spacing:0.5em; color:rgba(201,168,76,0.7);
+  text-transform:uppercase; white-space:nowrap;
+  z-index: 3;
+}
 /* タイトル */
-.idle-title { font-family:var(--f-serif); font-size:clamp(15px,2vw,24px); font-weight:400; color:rgba(245,240,232,0.92); letter-spacing:0.12em; text-align:center; margin-bottom:clamp(20px,3vw,40px); }
-/* 会社選択ボタン */
-/* 左右エリアに分けてボタン配置 */
+.idle-title {
+  position: absolute;
+  top: clamp(48px, 8vh, 90px);
+  left: 50%; transform: translateX(-50%);
+  font-family:var(--f-serif); font-size:clamp(15px,2vw,24px);
+  font-weight:400; color:rgba(245,240,232,0.92);
+  letter-spacing:0.12em; white-space:nowrap;
+  z-index: 3;
+}
+/* 左右ボタンエリア */
 .idle-cards {
   position: absolute;
   inset: 0;
@@ -77,37 +92,63 @@ html,body { width:100%; height:100%; background:var(--bg); color:var(--text); fo
 .idle-ccard {
   flex: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: clamp(20px,3vw,40px);
   cursor: pointer;
   pointer-events: all;
-  transition: background 0.22s cubic-bezier(0.4,0,0.2,1);
+  transition: background 0.22s ease;
 }
-.idle-ccard:hover { background: rgba(10,30,20,0.25); }
-.idle-ccard:active { background: rgba(10,30,20,0.40); }
-/* カード内の枠 */
+.idle-ccard:hover { background: rgba(10,30,20,0.18); }
+.idle-ccard:active { background: rgba(10,30,20,0.35); }
+/* カード内枠 */
 .idle-ccard-inner {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: clamp(28px,4vw,56px) clamp(24px,4vw,56px);
+  padding: clamp(24px,3.5vw,52px) clamp(28px,5vw,72px);
   background: rgba(10,30,20,0.35);
   border: 1px solid rgba(201,168,76,0.5);
   border-radius: 16px;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
-  min-width: clamp(200px,28vw,340px);
-  min-height: clamp(140px,18vh,220px);
+  transition: all 0.22s ease;
+  min-width: clamp(180px,24vw,300px);
+  min-height: clamp(120px,16vh,200px);
 }
-.idle-ccard:hover .idle-ccard-inner { border-color:#c9a84c; background:rgba(10,30,20,0.52); transform:translateY(-4px); box-shadow:0 8px 32px rgba(201,168,76,0.22); }
+.idle-ccard:hover .idle-ccard-inner { border-color:#c9a84c; background:rgba(10,30,20,0.55); transform:translateY(-4px); box-shadow:0 8px 32px rgba(201,168,76,0.22); }
 .idle-ccard:active .idle-ccard-inner { transform:scale(0.97); }
-.idle-ccard img { max-width:clamp(120px,16vw,200px); max-height:clamp(60px,8vw,100px); object-fit:contain; pointer-events:none; filter:brightness(0) invert(1); }
+.idle-ccard img { max-width:clamp(100px,14vw,180px); max-height:clamp(50px,7vw,90px); object-fit:contain; pointer-events:none; filter:brightness(0) invert(1); }
 .idle-ccard-name { display:none; }
-/* タップ案内 → メイン（廃止のため空定義） */
+/* 時計：下部中央 */
+#clock {
+  position: absolute;
+  bottom: clamp(60px, 10vh, 110px);
+  left: 50%; transform: translateX(-50%);
+  z-index: 3;
+  white-space: nowrap;
+  animation: clockColorShift 12s ease-in-out infinite;
+}
+.date-deco {
+  position: absolute;
+  bottom: clamp(36px, 6vh, 70px);
+  left: 50%; transform: translateX(-50%);
+  z-index: 3;
+  display: flex; align-items: center; gap: 16px;
+  color: rgba(201,168,76,0.5);
+  white-space: nowrap;
+}
+.concierge-note {
+  position: absolute; bottom: 14px; left: 24px;
+  display: flex; align-items: center; gap: 8px;
+  color: rgba(245,240,232,0.45);
+  font-family: var(--f-body);
+  font-size: clamp(10px,1.1vw,13px);
+  letter-spacing: 0.1em;
+  z-index: 3;
+}
+.concierge-note::before { content: 'ⓘ'; color: rgba(201,168,76,0.5); font-size: 1.1em; }
+
+/* /* タップ案内 → メイン（廃止のため空定義） */
 .tap-hint {
   font-family: var(--f-serif);
   font-size: clamp(22px, 3.2vw, 42px);
@@ -290,17 +331,15 @@ html,body { width:100%; height:100%; background:var(--bg); color:var(--text); fo
 </head>
 <body>
 
-<!-- IDLE（新トップ：背景+時計+会社選択ボタン） -->
+<!-- IDLE（新トップ） -->
 <div id="s-idle" class="screen active">
-  <img class="logo-2nd" src="assets/logo_2nd.png" alt="2nd Village">
-  <img class="logo-lux" src="assets/logo_lux.png" alt="LUX TOKYO">
   <div class="idle-lang">
     <button class="ilbtn active" data-lang="ja">日本語</button>
     <button class="ilbtn" data-lang="en">EN</button>
     <button class="ilbtn" data-lang="zh">中文</button>
   </div>
-  <div class="idle-sub" style="position:absolute;top:clamp(60px,9vh,100px);left:50%;transform:translateX(-50%);z-index:3;white-space:nowrap;">Reception</div>
-  <div class="idle-title" data-i18n="select_dest" style="position:absolute;top:clamp(90px,13vh,140px);left:50%;transform:translateX(-50%);z-index:3;white-space:nowrap;">受付先をお選びください</div>
+  <div class="idle-sub">Reception</div>
+  <div class="idle-title" data-i18n="select_dest">受付先をお選びください</div>
   <div class="idle-cards">
     <div class="idle-ccard" data-action="sel-2nd">
       <div class="idle-ccard-inner">
@@ -313,13 +352,13 @@ html,body { width:100%; height:100%; background:var(--bg); color:var(--text); fo
       </div>
     </div>
   </div>
-  <div id="clock" style="position:relative;z-index:2;">--:--</div>
-  <div class="date-deco" style="position:relative;z-index:2;">
+  <div id="clock">--:--</div>
+  <div class="date-deco">
     <div class="date-deco-line"></div>
     <div id="date"></div>
     <div class="date-deco-line"></div>
   </div>
-  <div class="concierge-note" data-i18n="concierge" style="z-index:2;">ご不明な点は、コンシェルジュまでお声がけください</div>
+  <div class="concierge-note" data-i18n="concierge">ご不明な点は、コンシェルジュまでお声がけください</div>
 </div>
 
 <!-- COMPANY -->
